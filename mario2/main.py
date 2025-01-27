@@ -109,18 +109,23 @@ def repin(original_string, index, new_char):
     return new_string
 
 
-maplist = load_level('levelmap')
-player = None
-all_sprites = pygame.sprite.Group()
-tiles_group = pygame.sprite.Group()
-player_group = pygame.sprite.Group()
-for i in range(len(maplist)):
-    if '@' in maplist[i]:
-        coordI = i
-        coordJ = maplist[i].find('@')
-        break
-
 if __name__ == '__main__':
+    filename = input("Доступные карты: map, map2, map3. Введите имя карты:")
+    file_path = os.path.join('data/', filename)
+    if not os.path.isfile(file_path):
+        print(f"Ошибка: Карта '{filename}' не существует.")
+        sys.exit()
+
+    maplist = load_level(filename)
+    player = None
+    all_sprites = pygame.sprite.Group()
+    tiles_group = pygame.sprite.Group()
+    player_group = pygame.sprite.Group()
+    for i in range(len(maplist)):
+        if '@' in maplist[i]:
+            coordI = i
+            coordJ = maplist[i].find('@')
+            break
     pygame.init()
     FPS = 50
     clock = pygame.time.Clock()
@@ -134,7 +139,7 @@ if __name__ == '__main__':
     }
     player_image = load_image('mar.png')
     tile_width = tile_height = 50
-    player, level_x, level_y = generate_level(load_level('levelmap'))
+    player, level_x, level_y = generate_level(load_level(filename))
 
     while running:
         for event in pygame.event.get():
