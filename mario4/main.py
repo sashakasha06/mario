@@ -86,19 +86,36 @@ class Player(pygame.sprite.Sprite):
             tile_width * pos_x + 15, tile_height * pos_y + 5)
 
 
+class Camera:
+    # зададим начальный сдвиг камеры
+    def __init__(self):
+        self.dx = 0
+        self.dy = 0
+
+    # сдвинуть объект obj на смещение камеры
+    def apply(self, obj):
+        obj.rect.x += self.dx
+        obj.rect.y += self.dy
+
+    # позиционировать камеру на объекте target
+    def update(self, target):
+        self.dx = -(target.rect.x + target.rect.w // 2 - width // 2)
+        self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
+
+
 def generate_level(level):
     new_player, x, y = None, None, None
     for y in range(len(level)):
         for x in range(len(level[y])):
-            if level[y][x] == '.':
+            if level[y % 12][x % 12] == '.':
                 Tile('grass', x, y)
-            elif level[y][x] == '#':
+            elif level[y % 12][x % 12] == '#':
                 Tile('wall', x, y)
-            elif level[y][x] == '@':
+            elif level[y % 12][x % 12] == '@':
                 Tile('grass', x, y)
-                new_player = Player(x, y)
+                new_player = Player(x % 12, y % 12)
     # вернем игрока, а также размер поля в клетках
-    return new_player, x, y
+    return new_player, x % 12, y % 12
 
 
 def repin(original_string, index, new_char):
@@ -109,18 +126,23 @@ def repin(original_string, index, new_char):
     return new_string
 
 
-maplist = load_level('levelmap')
-player = None
-all_sprites = pygame.sprite.Group()
-tiles_group = pygame.sprite.Group()
-player_group = pygame.sprite.Group()
-for i in range(len(maplist)):
-    if '@' in maplist[i]:
-        coordI = i
-        coordJ = maplist[i].find('@')
-        break
-
 if __name__ == '__main__':
+    filename = 'levelmap'
+    file_path = os.path.join('data/', filename)
+    if not os.path.isfile(file_path):
+        print(f"Ошибка: Карта '{filename}' не существует.")
+        sys.exit()
+
+    maplist = load_level(filename)
+    player = None
+    all_sprites = pygame.sprite.Group()
+    tiles_group = pygame.sprite.Group()
+    player_group = pygame.sprite.Group()
+    for i in range(len(maplist)):
+        if '@' in maplist[i]:
+            coordI = i
+            coordJ = maplist[i].find('@')
+            break
     pygame.init()
     FPS = 50
     clock = pygame.time.Clock()
@@ -130,11 +152,13 @@ if __name__ == '__main__':
     running = True
     tile_images = {
         'wall': load_image('box.png'),
-        'grass': load_image('grass.png')
+        'grass': load_image('grass.png'),
+        'black': load_image('black.png')
     }
     player_image = load_image('mar.png')
     tile_width = tile_height = 50
-    player, level_x, level_y = generate_level(load_level('levelmap'))
+    player, level_x, level_y = generate_level(load_level(filename))
+    camera = Camera()
 
     while running:
         for event in pygame.event.get():
@@ -145,31 +169,38 @@ if __name__ == '__main__':
                 mouse_pos = pygame.mouse.get_pos()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
-                    if coordJ > 0 and maplist[coordI][coordJ - 1] == '.':
-                        maplist[coordI] = repin(maplist[coordI], coordJ, '.')
-                        maplist[coordI] = repin(maplist[coordI], coordJ - 1, '@')
+                    if maplist[coordI % 11][(coordJ - 1) % 11] == '.':
+                        maplist[coordI] = repin(maplist[coordI % 11], coordJ % 11, '.')
+                        maplist[coordI] = repin(maplist[coordI % 11], (coordJ - 1) % 11, '@')
                         coordJ -= 1
 
                 elif event.key == pygame.K_RIGHT:
-                    if coordJ < len(maplist) and maplist[coordI][coordJ + 1] == '.':
-                        maplist[coordI] = repin(maplist[coordI], coordJ, '.')
-                        maplist[coordI] = repin(maplist[coordI], coordJ + 1, '@')
+                    if maplist[coordI % 11][(coordJ + 1) % 11] == '.':
+                        maplist[coordI] = repin(maplist[coordI % 11], coordJ % 11, '.')
+                        maplist[coordI] = repin(maplist[coordI % 11], (coordJ + 1) % 11, '@')
                         coordJ += 1
 
                 elif event.key == pygame.K_UP:
-                    if coordI > 0 and maplist[coordI - 1][coordJ] == '.':
-                        maplist[coordI] = repin(maplist[coordI], coordJ, '.')
-                        maplist[coordI - 1] = repin(maplist[coordI - 1], coordJ, '@')
+                    if maplist[(coordI - 1) % 11][coordJ % 11] == '.':
+                        maplist[coordI] = repin(maplist[coordI % 11], coordJ % 11, '.')
+                        maplist[coordI - 1] = repin(maplist[(coordI - 1) % 11], coordJ % 11, '@')
                         coordI -= 1
 
                 elif event.key == pygame.K_DOWN:
-                    if coordI < len(maplist) and maplist[coordI + 1][coordJ] == '.':
-                        maplist[coordI] = repin(maplist[coordI], coordJ, '.')
-                        maplist[coordI + 1] = repin(maplist[coordI + 1], coordJ, '@')
+                    if maplist[(coordI + 1) % 11][coordJ % 11] == '.':
+                        maplist[coordI] = repin(maplist[coordI % 11], coordJ % 11, '.')
+                        maplist[coordI + 1] = repin(maplist[(coordI + 1) % 11], coordJ % 11, '@')
                         coordI += 1
 
-                player.rect.topleft = (coordJ * tile_width + 15, coordI * tile_height + 5)
+                player.rect.topleft = (coordJ % 11 * tile_width + 15, coordI % 11 * tile_height + 5)
                 player, level_x, level_y = generate_level(maplist)
                 pygame.display.flip()
+
+                camera.update(player)
+                for sprite in all_sprites:
+                    camera.apply(sprite)
+
+            pygame.display.flip()
+            all_sprites.draw(screen)
 
     pygame.quit()

@@ -185,10 +185,13 @@ if __name__ == '__main__':
                         maplist[coordI] = repin(maplist[coordI], coordJ, '.')
                         maplist[coordI + 1] = repin(maplist[coordI + 1], coordJ, '@')
                         coordI += 1
+                        black_color = (0, 0, 0)
+                        screen.fill(black_color)
 
                 player.rect.topleft = (coordJ * tile_width + 15, coordI * tile_height + 5)
                 player, level_x, level_y = generate_level(maplist)
                 pygame.display.flip()
+
 
             pygame.display.flip()
             camera.update(player)
