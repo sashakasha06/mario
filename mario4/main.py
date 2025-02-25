@@ -170,26 +170,26 @@ if __name__ == '__main__':
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
                     if maplist[coordI % 11][(coordJ - 1) % 11] == '.':
-                        maplist[coordI] = repin(maplist[coordI % 11], coordJ % 11, '.')
-                        maplist[coordI] = repin(maplist[coordI % 11], (coordJ - 1) % 11, '@')
+                        maplist[coordI % 11] = repin(maplist[coordI % 11], coordJ % 11, '.')
+                        maplist[coordI % 11] = repin(maplist[coordI % 11], (coordJ - 1) % 11, '@')
                         coordJ -= 1
 
                 elif event.key == pygame.K_RIGHT:
                     if maplist[coordI % 11][(coordJ + 1) % 11] == '.':
-                        maplist[coordI] = repin(maplist[coordI % 11], coordJ % 11, '.')
-                        maplist[coordI] = repin(maplist[coordI % 11], (coordJ + 1) % 11, '@')
+                        maplist[coordI % 11] = repin(maplist[coordI % 11], coordJ % 11, '.')
+                        maplist[coordI % 11] = repin(maplist[coordI % 11], (coordJ + 1) % 11, '@')
                         coordJ += 1
 
                 elif event.key == pygame.K_UP:
                     if maplist[(coordI - 1) % 11][coordJ % 11] == '.':
-                        maplist[coordI] = repin(maplist[coordI % 11], coordJ % 11, '.')
-                        maplist[coordI - 1] = repin(maplist[(coordI - 1) % 11], coordJ % 11, '@')
+                        maplist[coordI % 11] = repin(maplist[coordI % 11], coordJ % 11, '.')
+                        maplist[(coordI - 1) % 11] = repin(maplist[(coordI - 1) % 11], coordJ % 11, '@')
                         coordI -= 1
 
                 elif event.key == pygame.K_DOWN:
                     if maplist[(coordI + 1) % 11][coordJ % 11] == '.':
-                        maplist[coordI] = repin(maplist[coordI % 11], coordJ % 11, '.')
-                        maplist[coordI + 1] = repin(maplist[(coordI + 1) % 11], coordJ % 11, '@')
+                        maplist[coordI % 11] = repin(maplist[coordI % 11], coordJ % 11, '.')
+                        maplist[(coordI + 1) % 11] = repin(maplist[(coordI + 1) % 11], coordJ % 11, '@')
                         coordI += 1
 
                 player.rect.topleft = (coordJ % 11 * tile_width + 15, coordI % 11 * tile_height + 5)
